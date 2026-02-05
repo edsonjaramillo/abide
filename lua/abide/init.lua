@@ -1,6 +1,3 @@
----@class AbideOptions
----@field formatters? Formatters
-
 ---@class Formatters
 ---@field alejandra? AlejandraOptions
 ---@field gofumpt? GofumptOptions
@@ -10,23 +7,22 @@
 ---@field taplo? TaploOptions
 ---@field yamlfmt? YamlfmtOptions
 
----@type AbideOptions
-local default_config = { formatters = {} }
-
 local M = {}
 
 ---@param opts AbideOptions
 M.setup = function(opts)
-	opts = vim.tbl_deep_extend("force", vim.deepcopy(default_config), opts or {})
+	local config = require("abide.config")
+	config.setup(opts)
 
-	for fmt, _ in pairs(opts.formatters) do
+	local formatters = config.get().formatters
+	for fmt, _ in pairs(formatters) do
 		local formatter = require("abide.formatters." .. fmt)
 
-		local fmt_opts = vim.tbl_deep_extend("force", formatter.default, opts.formatters[fmt] or {})
-		default_config.formatters[fmt] = fmt_opts
+		local fmt_opts = vim.tbl_deep_extend("force", formatter.default, formatters[fmt] or {})
+		config.set_formatter(fmt, fmt_opts)
 
 		if fmt_opts.enabled and formatter.prerequisites() then
-			formatter.setup(fmt_opts)
+			formatter.setup()
 		end
 	end
 end

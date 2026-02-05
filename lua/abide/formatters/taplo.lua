@@ -1,4 +1,5 @@
 local autocmd = require("abide.autocmd")
+local config = require("abide.config")
 local utils = require("abide.utils")
 
 ---@alias TaploFiletype "toml"
@@ -12,7 +13,7 @@ local utils = require("abide.utils")
 ---@class TaploModule
 ---@field default TaploOptions
 ---@field prerequisites fun(): boolean
----@field setup fun(opts: TaploOptions): nil
+---@field setup fun(): nil
 ---
 ---@type TaploModule
 local M = {}
@@ -30,9 +31,9 @@ M.prerequisites = function()
 	return utils.check_executable("taplo")
 end
 
----@param opts TaploOptions
 ---@return nil
-M.setup = function(opts)
+M.setup = function()
+	local opts = config.get_formatter("taplo") or M.default
 	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)

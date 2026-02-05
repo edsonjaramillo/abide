@@ -1,4 +1,5 @@
 local autocmd = require("abide.autocmd")
+local config = require("abide.config")
 local utils = require("abide.utils")
 
 ---@alias AlejandraFiletype "nix"
@@ -12,7 +13,7 @@ local utils = require("abide.utils")
 ---@class AlejandraModule
 ---@field default AlejandraOptions
 ---@field prerequisites fun(): boolean
----@field setup fun(opts: AlejandraOptions): nil
+---@field setup fun(): nil
 ---
 ---@type AlejandraModule
 local M = {}
@@ -30,9 +31,9 @@ M.prerequisites = function()
 	return utils.check_executable("alejandra")
 end
 
----@param opts AlejandraOptions
 ---@return nil
-M.setup = function(opts)
+M.setup = function()
+	local opts = config.get_formatter("alejandra") or M.default
 	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)

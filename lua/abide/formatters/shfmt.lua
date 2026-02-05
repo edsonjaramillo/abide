@@ -1,4 +1,5 @@
 local autocmd = require("abide.autocmd")
+local config = require("abide.config")
 local utils = require("abide.utils")
 
 ---@alias ShfmtLanguage "bash"|"posix"|"mksh"|"bats"
@@ -13,7 +14,7 @@ local utils = require("abide.utils")
 ---@class ShfmtModule
 ---@field default ShfmtOptions
 ---@field prerequisites fun(): boolean
----@field setup fun(opts: ShfmtOptions): nil
+---@field setup fun(): nil
 ---
 ---@type ShfmtModule
 local M = {}
@@ -31,9 +32,9 @@ M.prerequisites = function()
 	return utils.check_executable("shfmt")
 end
 
----@param opts ShfmtOptions
 ---@return nil
-M.setup = function(opts)
+M.setup = function()
+	local opts = config.get_formatter("shfmt") or M.default
 	local patterns = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(patterns, function(o)

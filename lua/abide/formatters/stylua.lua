@@ -1,4 +1,5 @@
 local autocmd = require("abide.autocmd")
+local config = require("abide.config")
 local utils = require("abide.utils")
 
 ---@alias StyluaFiletype "lua"
@@ -12,7 +13,7 @@ local utils = require("abide.utils")
 ---@class StyluaModule
 ---@field default StyluaOptions
 ---@field prerequisites fun(): boolean
----@field setup fun(opts: StyluaOptions): nil
+---@field setup fun(): nil
 ---
 ---@type StyluaModule
 local M = {}
@@ -30,9 +31,9 @@ M.prerequisites = function()
 	return utils.check_executable("stylua")
 end
 
----@param opts StyluaOptions
 ---@return nil
-M.setup = function(opts)
+M.setup = function()
+	local opts = config.get_formatter("stylua") or M.default
 	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)

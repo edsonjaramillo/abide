@@ -1,4 +1,5 @@
 local autocmd = require("abide.autocmd")
+local config = require("abide.config")
 local utils = require("abide.utils")
 
 ---@alias YamlfmtFiletype "yaml"
@@ -12,7 +13,7 @@ local utils = require("abide.utils")
 ---@class YamlfmtModule
 ---@field default YamlfmtOptions
 ---@field prerequisites fun(): boolean
----@field setup fun(opts: YamlfmtOptions): nil
+---@field setup fun(): nil
 ---
 ---@type YamlfmtModule
 local M = {}
@@ -30,9 +31,9 @@ M.prerequisites = function()
 	return utils.check_executable("yamlfmt")
 end
 
----@param opts YamlfmtOptions
 ---@return nil
-M.setup = function(opts)
+M.setup = function()
+	local opts = config.get_formatter("yamlfmt") or M.default
 	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)

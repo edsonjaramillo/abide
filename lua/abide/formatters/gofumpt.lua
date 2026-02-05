@@ -1,4 +1,5 @@
 local autocmd = require("abide.autocmd")
+local config = require("abide.config")
 local utils = require("abide.utils")
 
 ---@alias GofumptFiletype "go"
@@ -12,7 +13,7 @@ local utils = require("abide.utils")
 ---@class GofumptModule
 ---@field default GofumptOptions
 ---@field prerequisites fun(): boolean
----@field setup fun(opts: GofumptOptions): nil
+---@field setup fun(): nil
 ---
 ---@type GofumptModule
 local M = {}
@@ -30,9 +31,9 @@ M.prerequisites = function()
 	return utils.check_executable("gofumpt")
 end
 
----@param opts GofumptOptions
 ---@return nil
-M.setup = function(opts)
+M.setup = function()
+	local opts = config.get_formatter("gofumpt") or M.default
 	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)

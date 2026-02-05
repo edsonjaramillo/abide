@@ -1,4 +1,5 @@
 local autocmd = require("abide.autocmd")
+local config = require("abide.config")
 local utils = require("abide.utils")
 
 ---@alias PrettierFiletype
@@ -29,7 +30,7 @@ local utils = require("abide.utils")
 ---@class PrettierModule
 ---@field default PrettierOptions
 ---@field prerequisites fun(): boolean
----@field setup fun(opts: PrettierOptions): nil
+---@field setup fun(): nil
 ---
 ---@type PrettierModule
 local M = {}
@@ -65,9 +66,9 @@ M.prerequisites = function()
 	return utils.check_executable("prettier")
 end
 
----@param opts PrettierOptions
 ---@return nil
-M.setup = function(opts)
+M.setup = function()
+	local opts = config.get_formatter("prettier") or M.default
 	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 	autocmd.New(filetypes, function(o)
 		local stdin = utils.get_buffer_lines(o.buf)
