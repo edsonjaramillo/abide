@@ -84,6 +84,51 @@ local function restore_marks(bufnr, marks)
 	end
 end
 
+--- Collect debug breakpoints (e.g. nvim-dap) for a buffer.
+--- @param bufnr number
+--- @return table[] breakpoints list ({ name: string, lnum: number })
+local function collect_debug_breakpoints(bufnr)
+	local ok, placed = pcall(vim.fn.sign_getplaced, bufnr, { group = "dap_breakpoints" })
+	if not ok or type(placed) ~= "table" or type(placed[1]) ~= "table" then
+		return {}
+	end
+
+	local breakpoints = {}
+	for _, sign in ipairs(placed[1].signs or {}) do
+		if type(sign) == "table" and type(sign.name) == "string" and type(sign.lnum) == "number" then
+			table.insert(breakpoints, { name = sign.name, lnum = sign.lnum })
+		end
+	end
+
+	return breakpoints
+end
+
+--- Restore debug breakpoints previously collected.
+--- @param bufnr number
+--- @param breakpoints table[]
+local function restore_debug_breakpoints(bufnr, breakpoints)
+	if #breakpoints == 0 then
+		return
+	end
+
+	pcall(vim.fn.sign_unplace, "dap_breakpoints", { buffer = bufnr })
+	for _, breakpoint in ipairs(breakpoints) do
+		pcall(vim.fn.sign_place, 0, "dap_breakpoints", breakpoint.name, bufnr, { lnum = breakpoint.lnum })
+	end
+end
+
+--- Run a callback while preserving debug breakpoints in a buffer.
+--- @param bufnr number
+--- @param callback fun()
+M.preserve_debug_breakpoints = function(bufnr, callback)
+	local breakpoints = collect_debug_breakpoints(bufnr)
+	local ok, err = pcall(callback)
+	restore_debug_breakpoints(bufnr, breakpoints)
+	if not ok then
+		error(err)
+	end
+end
+
 --- Notify the user with a log level string.
 --- @param message string
 --- @param level? "trace"|"debug"|"info"|"warn"|"error"|"off"
@@ -209,7 +254,9 @@ M.format = function(options)
 	local formatted_lines = vim.split(result.stdout, "\n", { plain = true, trimempty = true })
 	local marklist = collect_marks(options.buf)
 	local view_state = capture_view(options.buf)
-	vim.api.nvim_buf_set_lines(options.buf, 0, -1, false, formatted_lines)
+	M.preserve_debug_breakpoints(options.buf, function()
+		vim.api.nvim_buf_set_lines(options.buf, 0, -1, false, formatted_lines)
+	end)
 	restore_view(view_state)
 	if #marklist > 0 then
 		restore_marks(options.buf, marklist)
