@@ -14,7 +14,6 @@ local fs_utils = require("abide.utils.fs")
 
 ---@class TaploModule
 ---@field default TaploOptions
----@field prerequisites fun(): boolean
 ---@field setup fun(): nil
 ---
 ---@type TaploModule
@@ -27,11 +26,6 @@ M.default = {
 	disable_filetypes = {},
 	additional_args = {},
 }
-
----@return boolean
-M.prerequisites = function()
-	return fs_utils.check_executable("taplo")
-end
 
 ---@return nil
 M.setup = function()

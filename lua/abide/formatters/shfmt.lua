@@ -15,7 +15,6 @@ local fs_utils = require("abide.utils.fs")
 
 ---@class ShfmtModule
 ---@field default ShfmtOptions
----@field prerequisites fun(): boolean
 ---@field setup fun(): nil
 ---
 ---@type ShfmtModule
@@ -28,11 +27,6 @@ M.default = {
 	disable_filetypes = {},
 	additional_args = {},
 }
-
----@return boolean
-M.prerequisites = function()
-	return fs_utils.check_executable("shfmt")
-end
 
 ---@return nil
 M.setup = function()

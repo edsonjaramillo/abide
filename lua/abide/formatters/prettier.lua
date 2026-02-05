@@ -31,7 +31,6 @@ local fs_utils = require("abide.utils.fs")
 
 ---@class PrettierModule
 ---@field default PrettierOptions
----@field prerequisites fun(): boolean
 ---@field setup fun(): nil
 ---
 ---@type PrettierModule
@@ -62,11 +61,6 @@ M.default = {
 	disable_filetypes = {},
 	additional_args = {},
 }
-
----@return boolean
-M.prerequisites = function()
-	return fs_utils.check_executable("prettier")
-end
 
 ---@return nil
 M.setup = function()

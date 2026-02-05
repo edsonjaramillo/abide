@@ -21,7 +21,7 @@ M.setup = function(opts)
 		local fmt_opts = vim.tbl_deep_extend("force", formatter.default, formatters[fmt] or {})
 		config.set_formatter(fmt, fmt_opts)
 
-		if fmt_opts.enabled and formatter.prerequisites() then
+		if fmt_opts.enabled then
 			formatter.setup()
 		end
 	end

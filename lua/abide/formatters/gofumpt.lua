@@ -14,7 +14,6 @@ local fs_utils = require("abide.utils.fs")
 
 ---@class GofumptModule
 ---@field default GofumptOptions
----@field prerequisites fun(): boolean
 ---@field setup fun(): nil
 ---
 ---@type GofumptModule
@@ -27,11 +26,6 @@ M.default = {
 	disable_filetypes = {},
 	additional_args = {},
 }
-
----@return boolean
-M.prerequisites = function()
-	return fs_utils.check_executable("gofumpt")
-end
 
 ---@return nil
 M.setup = function()

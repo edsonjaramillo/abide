@@ -1,22 +1,4 @@
 local M = {}
-local notify_utils = require("abide.utils.notify")
-
---- Check if an executable is available in PATH
---- @param executable string Optional custom executable name
---- @return boolean
-M.check_executable = function(executable)
-	if executable == nil or executable == "" then
-		notify_utils.notify("Executable name is required.", "error")
-		return false
-	end
-
-	if vim.fn.executable(executable) == 0 then
-		notify_utils.notify("Executable '" .. executable .. "' not found in PATH.", "error")
-		return false
-	end
-
-	return true
-end
 
 --- Find the config file by recursively searching up the directory tree and stopping at the home directory
 --- @param file string The current file name

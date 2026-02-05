@@ -14,7 +14,6 @@ local fs_utils = require("abide.utils.fs")
 
 ---@class YamlfmtModule
 ---@field default YamlfmtOptions
----@field prerequisites fun(): boolean
 ---@field setup fun(): nil
 ---
 ---@type YamlfmtModule
@@ -27,11 +26,6 @@ M.default = {
 	disable_filetypes = {},
 	additional_args = {},
 }
-
----@return boolean
-M.prerequisites = function()
-	return fs_utils.check_executable("yamlfmt")
-end
 
 ---@return nil
 M.setup = function()

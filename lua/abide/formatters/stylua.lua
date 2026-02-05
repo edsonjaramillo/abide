@@ -14,7 +14,6 @@ local fs_utils = require("abide.utils.fs")
 
 ---@class StyluaModule
 ---@field default StyluaOptions
----@field prerequisites fun(): boolean
 ---@field setup fun(): nil
 ---
 ---@type StyluaModule
@@ -27,11 +26,6 @@ M.default = {
 	disable_filetypes = {},
 	additional_args = {},
 }
-
----@return boolean
-M.prerequisites = function()
-	return fs_utils.check_executable("stylua")
-end
 
 ---@return nil
 M.setup = function()
