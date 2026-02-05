@@ -1,6 +1,8 @@
 local autocmd = require("abide.autocmd")
+local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
-local utils = require("abide.utils")
+local format_utils = require("abide.utils.format")
+local fs_utils = require("abide.utils.fs")
 
 ---@alias TaploFiletype "toml"
 
@@ -28,16 +30,16 @@ M.default = {
 
 ---@return boolean
 M.prerequisites = function()
-	return utils.check_executable("taplo")
+	return fs_utils.check_executable("taplo")
 end
 
 ---@return nil
 M.setup = function()
 	local opts = config.get_formatter("taplo") or M.default
-	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
+	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local stdin = utils.get_buffer_lines(o.buf)
+		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		local argv = { "taplo", "format" }
 
 		if opts.additional_args and #opts.additional_args > 0 then
@@ -49,7 +51,7 @@ M.setup = function()
 		end
 		table.insert(argv, "-")
 
-		utils.format({ buf = o.buf, argv = argv, stdin = stdin })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin })
 	end)
 end
 

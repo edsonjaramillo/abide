@@ -1,6 +1,8 @@
 local autocmd = require("abide.autocmd")
+local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
-local utils = require("abide.utils")
+local format_utils = require("abide.utils.format")
+local fs_utils = require("abide.utils.fs")
 
 ---@alias ShfmtLanguage "bash"|"posix"|"mksh"|"bats"
 ---@alias ShfmtFiletype "sh"|"bash"|"bats"|"zsh"
@@ -29,16 +31,16 @@ M.default = {
 
 ---@return boolean
 M.prerequisites = function()
-	return utils.check_executable("shfmt")
+	return fs_utils.check_executable("shfmt")
 end
 
 ---@return nil
 M.setup = function()
 	local opts = config.get_formatter("shfmt") or M.default
-	local patterns = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
+	local patterns = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(patterns, function(o)
-		local stdin = utils.get_buffer_lines(o.buf)
+		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		local argv = { "shfmt" }
 
 		if opts.additional_args and #opts.additional_args > 0 then
@@ -51,7 +53,7 @@ M.setup = function()
 			vim.list_extend(argv, { "--filename", o.file })
 		end
 
-		utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = nil })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = nil })
 	end)
 end
 

@@ -1,6 +1,8 @@
 local autocmd = require("abide.autocmd")
+local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
-local utils = require("abide.utils")
+local format_utils = require("abide.utils.format")
+local fs_utils = require("abide.utils.fs")
 
 ---@alias StyluaFiletype "lua"
 
@@ -28,16 +30,16 @@ M.default = {
 
 ---@return boolean
 M.prerequisites = function()
-	return utils.check_executable("stylua")
+	return fs_utils.check_executable("stylua")
 end
 
 ---@return nil
 M.setup = function()
 	local opts = config.get_formatter("stylua") or M.default
-	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
+	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local stdin = utils.get_buffer_lines(o.buf)
+		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		local argv = { "stylua" }
 
 		for _, arg in ipairs(opts.additional_args or {}) do
@@ -45,7 +47,7 @@ M.setup = function()
 		end
 		table.insert(argv, "-")
 
-		utils.format({ buf = o.buf, argv = argv, stdin = stdin })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin })
 	end)
 end
 

@@ -1,6 +1,8 @@
 local autocmd = require("abide.autocmd")
+local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
-local utils = require("abide.utils")
+local format_utils = require("abide.utils.format")
+local fs_utils = require("abide.utils.fs")
 
 ---@alias GofumptFiletype "go"
 
@@ -28,23 +30,23 @@ M.default = {
 
 ---@return boolean
 M.prerequisites = function()
-	return utils.check_executable("gofumpt")
+	return fs_utils.check_executable("gofumpt")
 end
 
 ---@return nil
 M.setup = function()
 	local opts = config.get_formatter("gofumpt") or M.default
-	local filetypes = utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
+	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local stdin = utils.get_buffer_lines(o.buf)
+		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		local argv = { "gofumpt" }
 
 		if opts.additional_args and #opts.additional_args > 0 then
 			vim.list_extend(argv, opts.additional_args)
 		end
 
-		utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = nil })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = nil })
 	end)
 end
 
