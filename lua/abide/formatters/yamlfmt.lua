@@ -46,6 +46,9 @@ M.setup = function()
 		end
 
 		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+		if config_path then
+			vim.list_extend(argv, { "-conf", config_path })
+		end
 
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		format_utils.format({

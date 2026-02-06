@@ -45,12 +45,15 @@ M.setup = function()
 			vim.list_extend(argv, opts.additional_args)
 		end
 
-		if o.file and o.file ~= "" then
-			vim.list_extend(argv, { "--stdin-filepath", o.file })
+		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+		if config_path then
+			vim.list_extend(argv, { "--config", config_path })
 		end
 		table.insert(argv, "-")
 
-		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+		if o.file and o.file ~= "" then
+			vim.list_extend(argv, { "--stdin-filepath", o.file })
+		end
 
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		format_utils.format({

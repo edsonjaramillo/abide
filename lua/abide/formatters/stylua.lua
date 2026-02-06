@@ -44,9 +44,12 @@ M.setup = function()
 		for _, arg in ipairs(opts.additional_args or {}) do
 			table.insert(argv, arg)
 		end
-		table.insert(argv, "-")
 
 		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+		if config_path then
+			vim.list_extend(argv, { "--config-path", config_path })
+		end
+		table.insert(argv, "-")
 
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		format_utils.format({

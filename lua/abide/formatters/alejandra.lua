@@ -12,7 +12,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field filetypes? AlejandraFiletype[] DEFAULT: { "nix" }
 ---@field disable_filetypes? AlejandraFiletype[] DEFAULT: {}
 ---@field project_executables? string[] DEFAULT: {}
----@field config_files? string[] DEFAULT: {}
+---@field config_files? string[] DEFAULT: { "alejandra.toml" }
 ---@field additional_args? string[] DEFAULT: {}
 
 ---@class AlejandraModule
@@ -28,7 +28,7 @@ M.default = {
 	filetypes = { "nix" },
 	disable_filetypes = {},
 	project_executables = {},
-	config_files = {},
+	config_files = { "alejandra.toml" },
 	additional_args = {},
 }
 
@@ -39,13 +39,17 @@ M.setup = function()
 
 	autocmd.New(filetypes, function(o)
 		local alejandra = executable_utils.get_executable("alejandra", o.file, opts.project_executables)
-		local argv = { alejandra, "-" }
+		local argv = { alejandra }
 
 		if opts.additional_args and #opts.additional_args > 0 then
 			vim.list_extend(argv, opts.additional_args)
 		end
 
 		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+		if config_path then
+			vim.list_extend(argv, { "--experimental-config", config_path })
+		end
+		table.insert(argv, "-")
 
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		format_utils.format({
