@@ -100,7 +100,14 @@ M.setup = function()
 		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
 
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = config_path })
+		format_utils.format({
+			buf = o.buf,
+			argv = argv,
+			stdin = stdin,
+			config = config_path,
+			formatter = "prettier",
+			executable = prettier,
+		})
 	end)
 end
 

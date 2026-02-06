@@ -10,24 +10,13 @@ M.execute_command = function(argv, stdin)
 	return vim.system(argv, { stdin = stdin, text = true }):wait()
 end
 
---- Format a user-facing success message.
---- @param bufnr number
---- @param config_path string|nil
---- @return string
-M.format_success_message = function(bufnr, config_path)
-	local message = "Formatted buffer " .. bufnr .. " successfully."
-	if config_path then
-		local pretty_config_path = config_path:gsub(vim.fn.expand("~"), "~")
-		message = message .. " (config: " .. pretty_config_path .. ")"
-	end
-	return message
-end
-
---- @class CommandOptions
+---@class CommandOptions
 ---@field buf number Buffer number
 ---@field argv string[] Command and arguments to run
 ---@field stdin string Input to pass to the command
 ---@field config string|nil Path to the config file if found
+---@field formatter string|nil Formatter identifier (e.g. "prettier")
+---@field executable string|nil Resolved executable used to run formatting
 --- Format a buffer with the provided command options.
 --- @param options CommandOptions
 M.format = function(options)
@@ -54,9 +43,12 @@ M.format = function(options)
 
 	local formatted_lines = vim.split(result.stdout, "\n", { plain = true, trimempty = true })
 	buffer_utils.apply_formatted_lines(options.buf, formatted_lines)
-
-	local success_message = M.format_success_message(options.buf, options.config)
-	notify_utils.notify(success_message, "info")
+	notify_utils.notify_format_success({
+		bufnr = options.buf,
+		formatter = options.formatter,
+		executable = options.executable or options.argv[1],
+		config = options.config,
+	})
 end
 
 return M
