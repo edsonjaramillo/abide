@@ -11,6 +11,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? GofumptFiletype[] DEFAULT: { "go" }
 ---@field disable_filetypes? GofumptFiletype[] DEFAULT: {}
+---@field project_executables? string[] DEFAULT: {}
 ---@field config_files? string[] DEFAULT: {}
 ---@field additional_args? string[] DEFAULT: {}
 
@@ -26,6 +27,7 @@ M.default = {
 	enabled = false,
 	filetypes = { "go" },
 	disable_filetypes = {},
+	project_executables = {},
 	config_files = {},
 	additional_args = {},
 }
@@ -36,7 +38,7 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local gofumpt = executable_utils.get_executable("gofumpt", o.file)
+		local gofumpt = executable_utils.get_executable("gofumpt", o.file, opts.project_executables)
 		local argv = { gofumpt }
 
 		if opts.additional_args and #opts.additional_args > 0 then

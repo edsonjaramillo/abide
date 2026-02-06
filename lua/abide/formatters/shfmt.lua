@@ -12,6 +12,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? ShfmtFiletype[] DEFAULT: { "sh", "bash", "bats", "zsh" }
 ---@field disable_filetypes? ShfmtFiletype[] DEFAULT: {}
+---@field project_executables? string[] DEFAULT: {}
 ---@field config_files? string[] DEFAULT: { ".editorconfig" }
 ---@field additional_args? string[] DEFAULT: {}
 
@@ -27,6 +28,7 @@ M.default = {
 	enabled = false,
 	filetypes = { "sh", "bash", "bats", "zsh" },
 	disable_filetypes = {},
+	project_executables = {},
 	config_files = { ".editorconfig" },
 	additional_args = {},
 }
@@ -37,7 +39,7 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local shfmt = executable_utils.get_executable("shfmt", o.file)
+		local shfmt = executable_utils.get_executable("shfmt", o.file, opts.project_executables)
 		local argv = { shfmt }
 
 		if opts.additional_args and #opts.additional_args > 0 then

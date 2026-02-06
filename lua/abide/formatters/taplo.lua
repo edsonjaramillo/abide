@@ -11,6 +11,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? TaploFiletype[] DEFAULT: { "toml" }
 ---@field disable_filetypes? TaploFiletype[] DEFAULT: {}
+---@field project_executables? string[] DEFAULT: {}
 ---@field config_files? string[] DEFAULT: { "taplo.toml", ".taplo.toml" }
 ---@field additional_args? string[] DEFAULT: {}
 
@@ -26,6 +27,7 @@ M.default = {
 	enabled = false,
 	filetypes = { "toml" },
 	disable_filetypes = {},
+	project_executables = {},
 	config_files = { "taplo.toml", ".taplo.toml" },
 	additional_args = {},
 }
@@ -36,7 +38,7 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local taplo = executable_utils.get_executable("taplo", o.file)
+		local taplo = executable_utils.get_executable("taplo", o.file, opts.project_executables)
 		local argv = { taplo, "format" }
 
 		if opts.additional_args and #opts.additional_args > 0 then

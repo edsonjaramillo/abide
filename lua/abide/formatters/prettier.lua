@@ -28,7 +28,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? PrettierFiletype[] DEFAULT: { "javascript", "javascriptreact", "typescript", "typescriptreact", "json", "jsonc", "yaml", "markdown", "mdx", "css", "scss", "less", "html", "graphql", "vue", "svelte", "astro" }
 ---@field disable_filetypes? PrettierFiletype[] DEFAULT: {}
----@field local_exe_candidates? string[] DEFAULT: { "node_modules/.bin/prettier" }
+---@field project_executables? string[] DEFAULT: { "node_modules/.bin/prettier" }
 ---@field config_files? string[] DEFAULT: { ".prettierrc", ".prettierrc.json", ".prettierrc.yml", ".prettierrc.yaml", ".prettierrc.json5", ".prettierrc.js", ".prettierrc.cjs", ".prettierrc.mjs", ".prettierrc.toml", "prettier.config.js", "prettier.config.cjs", "prettier.config.mjs" }
 ---@field additional_args? string[] DEFAULT: {}
 
@@ -62,6 +62,7 @@ M.default = {
 		"astro",
 	},
 	disable_filetypes = {},
+	project_executables = { "node_modules/.bin/prettier" },
 	config_files = {
 		".prettierrc",
 		".prettierrc.json",
@@ -85,9 +86,7 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local prettier = executable_utils.get_executable("prettier", o.file, {
-			"node_modules/.bin/prettier",
-		})
+		local prettier = executable_utils.get_executable("prettier", o.file, opts.project_executables)
 		local argv = { prettier }
 
 		if o.file and o.file ~= "" then

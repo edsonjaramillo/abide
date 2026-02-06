@@ -11,6 +11,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? StyluaFiletype[] DEFAULT: { "lua" }
 ---@field disable_filetypes? StyluaFiletype[] DEFAULT: {}
+---@field project_executables? string[] DEFAULT: {}
 ---@field config_files? string[] DEFAULT: { "stylua.toml", ".stylua.toml" }
 ---@field additional_args? string[] DEFAULT: {}
 
@@ -26,6 +27,7 @@ M.default = {
 	enabled = false,
 	filetypes = { "lua" },
 	disable_filetypes = {},
+	project_executables = {},
 	config_files = { "stylua.toml", ".stylua.toml" },
 	additional_args = {},
 }
@@ -36,7 +38,7 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local stylua_executable = executable_utils.get_executable("stylua", o.file)
+		local stylua_executable = executable_utils.get_executable("stylua", o.file, opts.project_executables)
 		local argv = { stylua_executable }
 
 		for _, arg in ipairs(opts.additional_args or {}) do
