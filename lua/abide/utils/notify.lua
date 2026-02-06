@@ -24,7 +24,7 @@ M.notify = function(message, level, opts)
 end
 
 --- Notify the user about a successful format operation with contextual metadata.
---- @param details {bufnr:number, formatter:string|nil, executable:string|nil, config:string|nil}
+--- @param details {bufnr:number, formatter:string|nil, executable:string|nil, config:string|nil, mode:"config"|"fallback"|nil}
 M.notify_format_success = function(details)
 	local formatter_name = details.formatter or "unknown"
 	local executable = details.executable or "unknown"
@@ -35,6 +35,10 @@ M.notify_format_success = function(details)
 	if details.config then
 		local pretty_config_path = details.config:gsub(vim.fn.expand("~"), "~")
 		message = message .. "\nConfig: " .. pretty_config_path
+	end
+
+	if details.mode then
+		message = message .. "\nMode: " .. details.mode
 	end
 
 	local title = string.format("[%s] Buffer %d formatted", formatter_name, details.bufnr)

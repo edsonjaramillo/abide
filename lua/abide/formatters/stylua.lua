@@ -2,6 +2,7 @@ local autocmd = require("abide.autocmd")
 local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
 local executable_utils = require("abide.utils.exe")
+local fallback_utils = require("abide.utils.fallback")
 local format_utils = require("abide.utils.format")
 local fs_utils = require("abide.utils.fs")
 
@@ -13,7 +14,8 @@ local fs_utils = require("abide.utils.fs")
 ---@field disable_filetypes? StyluaFiletype[] DEFAULT: {}
 ---@field project_executables? string[] DEFAULT: {}
 ---@field config_files? string[] DEFAULT: { "stylua.toml", ".stylua.toml" }
----@field additional_args? string[] DEFAULT: {}
+---@field fallback? "auto"|"never"|"always" DEFAULT: "auto"
+---@field fallback_args? string[] DEFAULT: {}
 
 ---@class StyluaModule
 ---@field default StyluaOptions
@@ -29,7 +31,8 @@ M.default = {
 	disable_filetypes = {},
 	project_executables = {},
 	config_files = { "stylua.toml", ".stylua.toml" },
-	additional_args = {},
+	fallback = "auto",
+	fallback_args = {},
 }
 
 ---@return nil
@@ -41,13 +44,18 @@ M.setup = function()
 		local stylua = executable_utils.get_executable("stylua", o.file, opts.project_executables)
 		local argv = { stylua }
 
-		for _, arg in ipairs(opts.additional_args or {}) do
+		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+		local fallback = fallback_utils.resolve(opts.fallback, config_path)
+		if not fallback.should_format then
+			return
+		end
+
+		for _, arg in ipairs((fallback.use_fallback and opts.fallback_args) or {}) do
 			table.insert(argv, arg)
 		end
 
-		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
-		if config_path then
-			vim.list_extend(argv, { "--config-path", config_path })
+		if fallback.config then
+			vim.list_extend(argv, { "--config-path", fallback.config })
 		end
 		table.insert(argv, "-")
 
@@ -56,7 +64,8 @@ M.setup = function()
 			buf = o.buf,
 			argv = argv,
 			stdin = stdin,
-			config = config_path,
+			config = fallback.config,
+			mode = fallback.mode,
 			formatter = "stylua",
 			executable = stylua,
 		})

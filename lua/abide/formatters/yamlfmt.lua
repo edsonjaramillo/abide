@@ -2,6 +2,7 @@ local autocmd = require("abide.autocmd")
 local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
 local executable_utils = require("abide.utils.exe")
+local fallback_utils = require("abide.utils.fallback")
 local format_utils = require("abide.utils.format")
 local fs_utils = require("abide.utils.fs")
 
@@ -13,7 +14,8 @@ local fs_utils = require("abide.utils.fs")
 ---@field disable_filetypes? YamlfmtFiletype[] DEFAULT: {}
 ---@field project_executables? string[] DEFAULT: {}
 ---@field config_files? string[] DEFAULT: { ".yamlfmt", ".yamlfmt.yaml", ".yamlfmt.yml", "yamlfmt.yaml", "yamlfmt.yml" }
----@field additional_args? string[] DEFAULT: {}
+---@field fallback? "auto"|"never"|"always" DEFAULT: "auto"
+---@field fallback_args? string[] DEFAULT: {}
 
 ---@class YamlfmtModule
 ---@field default YamlfmtOptions
@@ -29,7 +31,8 @@ M.default = {
 	disable_filetypes = {},
 	project_executables = {},
 	config_files = { ".yamlfmt", ".yamlfmt.yaml", ".yamlfmt.yml", "yamlfmt.yaml", "yamlfmt.yml" },
-	additional_args = {},
+	fallback = "auto",
+	fallback_args = {},
 }
 
 ---@return nil
@@ -41,13 +44,18 @@ M.setup = function()
 		local yamlfmt = executable_utils.get_executable("yamlfmt", o.file, opts.project_executables)
 		local argv = { yamlfmt, "-in" }
 
-		if opts.additional_args and #opts.additional_args > 0 then
-			vim.list_extend(argv, opts.additional_args)
+		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+		local fallback = fallback_utils.resolve(opts.fallback, config_path)
+		if not fallback.should_format then
+			return
 		end
 
-		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
-		if config_path then
-			vim.list_extend(argv, { "-conf", config_path })
+		if fallback.use_fallback and opts.fallback_args and #opts.fallback_args > 0 then
+			vim.list_extend(argv, opts.fallback_args)
+		end
+
+		if fallback.config then
+			vim.list_extend(argv, { "-conf", fallback.config })
 		end
 
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
@@ -55,7 +63,8 @@ M.setup = function()
 			buf = o.buf,
 			argv = argv,
 			stdin = stdin,
-			config = config_path,
+			config = fallback.config,
+			mode = fallback.mode,
 			formatter = "yamlfmt",
 			executable = yamlfmt,
 		})

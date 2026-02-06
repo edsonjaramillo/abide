@@ -15,6 +15,7 @@ end
 ---@field argv string[] Command and arguments to run
 ---@field stdin string Input to pass to the command
 ---@field config string|nil Path to the config file if found
+---@field mode "config"|"fallback"|nil Formatting mode used for this run
 ---@field formatter string|nil Formatter identifier (e.g. "prettier")
 ---@field executable string|nil Resolved executable used to run formatting
 --- Format a buffer with the provided command options.
@@ -48,6 +49,7 @@ M.format = function(options)
 		formatter = options.formatter,
 		executable = options.executable or options.argv[1],
 		config = options.config,
+		mode = options.mode,
 	})
 end
 
