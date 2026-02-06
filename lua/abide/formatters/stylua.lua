@@ -11,6 +11,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? StyluaFiletype[] DEFAULT: { "lua" }
 ---@field disable_filetypes? StyluaFiletype[] DEFAULT: {}
+---@field config_files? string[] DEFAULT: { "stylua.toml", ".stylua.toml" }
 ---@field additional_args? string[] DEFAULT: {}
 
 ---@class StyluaModule
@@ -25,6 +26,7 @@ M.default = {
 	enabled = false,
 	filetypes = { "lua" },
 	disable_filetypes = {},
+	config_files = { "stylua.toml", ".stylua.toml" },
 	additional_args = {},
 }
 
@@ -42,8 +44,10 @@ M.setup = function()
 		end
 		table.insert(argv, "-")
 
+		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = config_path })
 	end)
 end
 

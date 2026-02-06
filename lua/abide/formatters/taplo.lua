@@ -11,6 +11,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? TaploFiletype[] DEFAULT: { "toml" }
 ---@field disable_filetypes? TaploFiletype[] DEFAULT: {}
+---@field config_files? string[] DEFAULT: { "taplo.toml", ".taplo.toml" }
 ---@field additional_args? string[] DEFAULT: {}
 
 ---@class TaploModule
@@ -25,6 +26,7 @@ M.default = {
 	enabled = false,
 	filetypes = { "toml" },
 	disable_filetypes = {},
+	config_files = { "taplo.toml", ".taplo.toml" },
 	additional_args = {},
 }
 
@@ -46,8 +48,10 @@ M.setup = function()
 		end
 		table.insert(argv, "-")
 
+		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = config_path })
 	end)
 end
 

@@ -29,6 +29,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field filetypes? PrettierFiletype[] DEFAULT: { "javascript", "javascriptreact", "typescript", "typescriptreact", "json", "jsonc", "yaml", "markdown", "mdx", "css", "scss", "less", "html", "graphql", "vue", "svelte", "astro" }
 ---@field disable_filetypes? PrettierFiletype[] DEFAULT: {}
 ---@field local_exe_candidates? string[] DEFAULT: { "node_modules/.bin/prettier" }
+---@field config_files? string[] DEFAULT: { ".prettierrc", ".prettierrc.json", ".prettierrc.yml", ".prettierrc.yaml", ".prettierrc.json5", ".prettierrc.js", ".prettierrc.cjs", ".prettierrc.mjs", ".prettierrc.toml", "prettier.config.js", "prettier.config.cjs", "prettier.config.mjs" }
 ---@field additional_args? string[] DEFAULT: {}
 
 ---@class PrettierModule
@@ -61,6 +62,20 @@ M.default = {
 		"astro",
 	},
 	disable_filetypes = {},
+	config_files = {
+		".prettierrc",
+		".prettierrc.json",
+		".prettierrc.yml",
+		".prettierrc.yaml",
+		".prettierrc.json5",
+		".prettierrc.js",
+		".prettierrc.cjs",
+		".prettierrc.mjs",
+		".prettierrc.toml",
+		"prettier.config.js",
+		"prettier.config.cjs",
+		"prettier.config.mjs",
+	},
 	additional_args = {},
 }
 
@@ -83,8 +98,10 @@ M.setup = function()
 			vim.list_extend(argv, opts.additional_args)
 		end
 
+		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = config_path })
 	end)
 end
 

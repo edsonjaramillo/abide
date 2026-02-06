@@ -11,6 +11,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? AlejandraFiletype[] DEFAULT: { "nix" }
 ---@field disable_filetypes? AlejandraFiletype[] DEFAULT: {}
+---@field config_files? string[] DEFAULT: {}
 ---@field additional_args? string[] DEFAULT: {}
 
 ---@class AlejandraModule
@@ -25,6 +26,7 @@ M.default = {
 	enabled = false,
 	filetypes = { "nix" },
 	disable_filetypes = {},
+	config_files = {},
 	additional_args = {},
 }
 
@@ -41,8 +43,10 @@ M.setup = function()
 			vim.list_extend(argv, opts.additional_args)
 		end
 
+		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = nil })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = config_path })
 	end)
 end
 

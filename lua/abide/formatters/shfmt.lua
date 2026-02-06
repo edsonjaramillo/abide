@@ -12,6 +12,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? ShfmtFiletype[] DEFAULT: { "sh", "bash", "bats", "zsh" }
 ---@field disable_filetypes? ShfmtFiletype[] DEFAULT: {}
+---@field config_files? string[] DEFAULT: { ".editorconfig" }
 ---@field additional_args? string[] DEFAULT: {}
 
 ---@class ShfmtModule
@@ -26,6 +27,7 @@ M.default = {
 	enabled = false,
 	filetypes = { "sh", "bash", "bats", "zsh" },
 	disable_filetypes = {},
+	config_files = { ".editorconfig" },
 	additional_args = {},
 }
 
@@ -48,8 +50,10 @@ M.setup = function()
 			vim.list_extend(argv, { "--filename", o.file })
 		end
 
+		local config_path = fs_utils.find_config_file(o.file, opts.config_files)
+
 		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = nil })
+		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = config_path })
 	end)
 end
 
