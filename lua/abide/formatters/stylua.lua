@@ -1,6 +1,7 @@
 local autocmd = require("abide.autocmd")
 local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
+local executable_utils = require("abide.utils.exe")
 local format_utils = require("abide.utils.format")
 local fs_utils = require("abide.utils.fs")
 
@@ -33,14 +34,15 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		local argv = { "stylua" }
+		local stylua_executable = executable_utils.get_executable("stylua", o.file)
+		local argv = { stylua_executable }
 
 		for _, arg in ipairs(opts.additional_args or {}) do
 			table.insert(argv, arg)
 		end
 		table.insert(argv, "-")
 
+		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin })
 	end)
 end

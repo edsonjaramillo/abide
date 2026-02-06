@@ -1,6 +1,7 @@
 local autocmd = require("abide.autocmd")
 local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
+local executable_utils = require("abide.utils.exe")
 local format_utils = require("abide.utils.format")
 local fs_utils = require("abide.utils.fs")
 
@@ -27,6 +28,7 @@ local fs_utils = require("abide.utils.fs")
 ---@field enabled? boolean DEFAULT: false
 ---@field filetypes? PrettierFiletype[] DEFAULT: { "javascript", "javascriptreact", "typescript", "typescriptreact", "json", "jsonc", "yaml", "markdown", "mdx", "css", "scss", "less", "html", "graphql", "vue", "svelte", "astro" }
 ---@field disable_filetypes? PrettierFiletype[] DEFAULT: {}
+---@field local_exe_candidates? string[] DEFAULT: { "node_modules/.bin/prettier" }
 ---@field additional_args? string[] DEFAULT: {}
 
 ---@class PrettierModule
@@ -66,9 +68,12 @@ M.default = {
 M.setup = function()
 	local opts = config.get_formatter("prettier") or M.default
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
+
 	autocmd.New(filetypes, function(o)
-		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		local argv = { "prettier" }
+		local prettier = executable_utils.get_executable("prettier", o.file, {
+			"node_modules/.bin/prettier",
+		})
+		local argv = { prettier }
 
 		if o.file and o.file ~= "" then
 			vim.list_extend(argv, { "--stdin-filepath", o.file })
@@ -78,6 +83,7 @@ M.setup = function()
 			vim.list_extend(argv, opts.additional_args)
 		end
 
+		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin })
 	end)
 end

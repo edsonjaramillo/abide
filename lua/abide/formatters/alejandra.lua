@@ -1,8 +1,10 @@
 local autocmd = require("abide.autocmd")
 local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
+local executable_utils = require("abide.utils.exe")
 local format_utils = require("abide.utils.format")
 local fs_utils = require("abide.utils.fs")
+local notify_utils = require("abide.utils.notify")
 
 ---@alias AlejandraFiletype "nix"
 
@@ -33,13 +35,14 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		local argv = { "alejandra", "-" }
+		local alejandra = executable_utils.get_executable("alejandra", o.file)
+		local argv = { alejandra, "-" }
 
 		if opts.additional_args and #opts.additional_args > 0 then
 			vim.list_extend(argv, opts.additional_args)
 		end
 
+		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin, config = nil })
 	end)
 end

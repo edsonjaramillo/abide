@@ -1,6 +1,7 @@
 local autocmd = require("abide.autocmd")
 local buffer_utils = require("abide.utils.buffer")
 local config = require("abide.config")
+local executable_utils = require("abide.utils.exe")
 local format_utils = require("abide.utils.format")
 local fs_utils = require("abide.utils.fs")
 
@@ -33,8 +34,8 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local stdin = buffer_utils.get_buffer_lines(o.buf)
-		local argv = { "taplo", "format" }
+		local taplo = executable_utils.get_executable("taplo", o.file)
+		local argv = { taplo, "format" }
 
 		if opts.additional_args and #opts.additional_args > 0 then
 			vim.list_extend(argv, opts.additional_args)
@@ -45,6 +46,7 @@ M.setup = function()
 		end
 		table.insert(argv, "-")
 
+		local stdin = buffer_utils.get_buffer_lines(o.buf)
 		format_utils.format({ buf = o.buf, argv = argv, stdin = stdin })
 	end)
 end
