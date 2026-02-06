@@ -38,8 +38,8 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local yamlfmt_executable = executable_utils.get_executable("yamlfmt", o.file, opts.project_executables)
-		local argv = { yamlfmt_executable, "-in" }
+		local yamlfmt = executable_utils.get_executable("yamlfmt", o.file, opts.project_executables)
+		local argv = { yamlfmt, "-in" }
 
 		if opts.additional_args and #opts.additional_args > 0 then
 			vim.list_extend(argv, opts.additional_args)

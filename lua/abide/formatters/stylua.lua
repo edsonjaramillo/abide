@@ -38,8 +38,8 @@ M.setup = function()
 	local filetypes = fs_utils.filter_filetypes(opts.filetypes, opts.disable_filetypes)
 
 	autocmd.New(filetypes, function(o)
-		local stylua_executable = executable_utils.get_executable("stylua", o.file, opts.project_executables)
-		local argv = { stylua_executable }
+		local stylua = executable_utils.get_executable("stylua", o.file, opts.project_executables)
+		local argv = { stylua }
 
 		for _, arg in ipairs(opts.additional_args or {}) do
 			table.insert(argv, arg)
