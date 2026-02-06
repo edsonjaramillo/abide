@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 # https://taskfile.dev
 version: '3'
-tasks: 
+tasks:
   format:
     cmd: stylua .
     silent: true
