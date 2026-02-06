@@ -4,7 +4,6 @@ local config = require("abide.config")
 local executable_utils = require("abide.utils.exe")
 local format_utils = require("abide.utils.format")
 local fs_utils = require("abide.utils.fs")
-local notify_utils = require("abide.utils.notify")
 
 ---@alias AlejandraFiletype "nix"
 
