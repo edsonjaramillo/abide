@@ -2,6 +2,29 @@ local config = require("abide.config")
 
 local M = {}
 
+--- Pretty-print paths with cwd-first precedence, then home.
+--- @param path string
+--- @return string
+local function pretty_path(path)
+	local cwd = vim.fn.getcwd()
+	local home = vim.fn.expand("~")
+
+	if path == cwd then
+		return "$CWD"
+	end
+	local cwd_prefixed = path:gsub("^" .. vim.pesc(cwd) .. "/", "$CWD/")
+	if cwd_prefixed ~= path then
+		return cwd_prefixed
+	end
+
+	if path == home then
+		return "~"
+	end
+
+	local home_prefixed = path:gsub("^" .. vim.pesc(home) .. "/", "~/")
+	return home_prefixed
+end
+
 --- Notify the user with a log level string.
 --- @param message string
 --- @param level? "trace"|"debug"|"info"|"warn"|"error"|"off"
@@ -29,12 +52,12 @@ M.notify_format_success = function(details)
 	local formatter_name = details.formatter or "unknown"
 	local executable = details.executable or "unknown"
 
-	local pretty_executable = executable:gsub(vim.fn.getcwd(), "$CWD")
+	local pretty_executable = pretty_path(executable)
 	local message = string.format("Executable: %s", pretty_executable)
 
 	if details.config then
-		local pretty_config_path = details.config:gsub(vim.fn.expand("~"), "~")
-		message = message .. "\nConfig: " .. pretty_config_path
+		local pretty_config = pretty_path(details.config)
+		message = message .. "\nConfig: " .. pretty_config
 	end
 
 	if details.mode then
