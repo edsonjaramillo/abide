@@ -2,6 +2,7 @@
 ---@field alejandra? AlejandraOptions
 ---@field gofumpt? GofumptOptions
 ---@field prettier? PrettierOptions
+---@field ruff? RuffOptions
 ---@field shfmt? ShfmtOptions
 ---@field stylua? StyluaOptions
 ---@field taplo? TaploOptions
