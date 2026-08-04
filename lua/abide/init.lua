@@ -1,6 +1,7 @@
 ---@class Formatters
 ---@field alejandra? AlejandraOptions
 ---@field gofumpt? GofumptOptions
+---@field oxfmt? OxfmtOptions
 ---@field prettier? PrettierOptions
 ---@field ruff? RuffOptions
 ---@field shfmt? ShfmtOptions
