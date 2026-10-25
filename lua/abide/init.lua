@@ -1,5 +1,6 @@
 ---@class Formatters
 ---@field alejandra? AlejandraOptions
+---@field clang_format? ClangFormatOptions
 ---@field gofumpt? GofumptOptions
 ---@field oxfmt? OxfmtOptions
 ---@field prettier? PrettierOptions
